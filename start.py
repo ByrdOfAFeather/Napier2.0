@@ -12,7 +12,6 @@ import sqlite3
 # Matthew Byrd
 # 2016 -2018
 # A Discord Bot designed for educational use, to inspire people to learn mathematics more so than now.
-# Part of FIX DHS 2018.
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
 
 # TO DO LIST #
