@@ -121,16 +121,28 @@ def get_question(channel_id):
     return cur_settings
 
 
-def get_answer(level, ques_set, no):
+def get_aw(level, ques_set, no):
     # Retrieves the currents answer from the given level config file
     settings.read(r"Math Question Repo\{}\{}\answer_key.ini".format(level, ques_set))
-    cur_answer = settings.get(no, 'answer')
-    return cur_answer
+    cur_aw = [settings.get(no, 'answer'), int(settings.get(no, 'point_val').replace("jpg", ""))]
+    return cur_aw
 
 
-def get_weight(level, ques_set, no):
-    # Retrieves the current weight
-    settings.read(r"Math Question Repo\{}\{}\answer_key.ini".format(level, ques_set))
-    cur_answer = settings.get(no, 'point_val')
-    print(cur_answer)
-    return cur_answer
+def get_ranks():
+    # Returns a discord-formatted string containing the ranks in order
+    db = sqlite3.connect('Rankings.db')
+    adder = db.cursor()
+    adder.execute('SELECT * FROM ranks ORDER BY Points DESC')
+    db_result = adder.fetchall()
+
+    rank_list = ""  # Note not actaully a list, but a string.
+    i = 0
+    while i < 10:
+        try:
+            final_row = str(db_result[i]).replace("(", "").replace(")", "").replace(" ", "").split(',')
+            rank_list += "<@{}> is rank {} with {} points\n".format(final_row[0], i + 1, final_row[1])
+            i += 1
+        except IndexError:
+            break
+    db.close()
+    return rank_list

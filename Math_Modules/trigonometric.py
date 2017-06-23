@@ -2,17 +2,18 @@ import math
 import turtle
 import canvasvg
 
-def sin_call(number):
+
+def sin_deg(number):
     number = math.sin(math.radians(number))
     return number
 
 
-def cos_call(number):
+def cos_deg(number):
     number = math.cos(math.radians(number))
     return number
 
 
-def tan_call(number):
+def tan_deg(number):
     number = math.tan(math.radians(number))
     return number
 

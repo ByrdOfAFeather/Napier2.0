@@ -1,5 +1,4 @@
 from Math_Modules import trigonometric as tr
-from Math_Modules import conversion_funcs as cf
 from Math_Modules import polynomials as pn
 from Ranking import Ranking as r
 import censor
@@ -7,10 +6,9 @@ import secrets
 from discord.ext import commands
 from sympy.parsing.sympy_parser import parse_expr
 from datetime import datetime
-import sqlite3
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
 # Matthew Byrd
-# 2016 -2018
+# 2016 - 2018
 # A Discord Bot designed for educational use, to inspire people to learn mathematics more so than now.
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
 
@@ -35,29 +33,36 @@ async def on_ready():
 ########################################################################################################################
 
 # Trigonometric Functions #
+# Uses Module Trigonometric (tr) #
+
 @napier.command(pass_context=True)
 async def sin(ctx):
-    form_val = cf.format_msg(ctx.message.content, "sin")
-    await napier.say(tr.sin_call(parse_expr(form_val)))  # tr = trigonometric
+    """Returns the sine value in degrees of the given angle. >sin x"""
+    form_val = ctx.message.content.replace(">sin", "")
+    await napier.say(tr.sin_deg(parse_expr(form_val)))
     
 
 @napier.command(pass_context=True)
 async def cos(ctx):
-    form_val = cf.format_msg(ctx.message.content, "cos")
-    await napier.say(tr.cos_call(parse_expr(form_val)))
+    """Returns the cosine value in degrees of the given angle. >cos x"""
+    form_val = ctx.message.content.replace("cos", "")
+    await napier.say(tr.cos_deg(parse_expr(form_val)))
 
 
 @napier.command(pass_context=True)
 async def tan(ctx):
-    form_val = cf.format_msg(ctx.message.content, "tan")
-    await napier.say(tr.tan_call(parse_expr(form_val)))
+    """Returns the tangent value in degrees of the given angle. >tan x"""
+    form_val = ctx.message.content.replace("tan", "")
+    await napier.say(tr.tan_deg(parse_expr(form_val)))
 
 
 @napier.command(pass_context=True)
 async def solve_triangle(ctx):
+    """Solves a right triangle, given that the right triangle is possible.
+    >solve_triangle angle(deg) | angle(deg) | leg | leg | hypo"""
     await napier.say("I am on it!")
-    form_val = cf.format_msg(ctx.message.content, "solve_triangle")
-    form_val = form_val.split()
+    form_val = ctx.message.content.replace("solve_triangle", "")
+    form_val = form_val.split('|')
     i = 0
     for values in form_val:
         if values == "None":
@@ -76,35 +81,40 @@ async def solve_triangle(ctx):
 ########################################################################################################################
 
 # Polynomial Manipulation #
+# Uses Polynomials module (pn) #
 
 
 @napier.command(pass_context=True)
 async def factor(ctx):
-    formatted = cf.format_msg(ctx.message.content, "factor")
-    try:
-        await napier.say("```{}```".format(pn.factor(formatted)))
+    """Factors a given function, >factor x^2 + 3*x^2...etc. Multiplication symbol required (3x != 3*x)"""
+    formatted = ctx.message.content.replace(">factor", "")
+    try: await napier.say("```{}```".format(pn.factor(formatted)))
 
-    except (SyntaxError, TypeError):
-        await napier.say("The given function does not make sense to me.")
+    except (SyntaxError, TypeError) as e:
+        await napier.say("The given function does not make sense to me. 0_0")
+        print("wrong {}".format(e))
 
 
 @napier.command(pass_context=True)
 async def simplify(ctx):
-    formatted = cf.format_msg(ctx.message.content, "simplify")
-    try:await napier.say("```{}```".format(pn.simplify(formatted)))
+    """Simplifies a given function, Similar to >factor, but is limited in certain aspects of factorization"""
+    formatted = ctx.message.content.replace(">simplify", "")
+    try: await napier.say("```{}```".format(pn.simplify(formatted)))
 
     except (SyntaxError, TypeError) as e:
-        await napier.say("The given function does not make sense to me")
+        await napier.say("The given function does not make sense to me. 0_0")
         print("wrong {}".format(e))
 
 
 @napier.command(pass_context=True)
 async def roots(ctx):
-    formatted = cf.format_msg(ctx.message.content, "roots")
-    try: await napier.say("```{}```".format(pn.get_dem_roots(formatted)))
+    """finds all real roots of a given function.
+    >roots x**2 + 3*x^2...etc Multiplication symbol is required (3x != 3*x)"""
+    formatted = ctx.message.content.replace(">roots", "")
+    try: await napier.say("```{}```".format(pn.get_roots(formatted)))
 
     except (SyntaxError, TypeError) as e:
-        await napier.say("The given function does not make sense to me.")
+        await napier.say("The given function does not make sense to me. 0_0")
         print("wrong {}".format(e))
 
 
@@ -124,30 +134,18 @@ async def roots(ctx):
 ########################################################################################################################
 
 # Ranking System - WIP #
+# Uses ranking module (r) #
 
 @napier.command(pass_context=True)
 async def ranks(ctx):
-    db = sqlite3.connect('SQL Manager/Rankings.db')
-    adder = db.cursor()
-
-    adder.execute('SELECT * FROM ranks ORDER BY Points DESC')
-    db_result = adder.fetchall()
-
-    i = 0
-    rank_list = ""  # Note not actaully a list, but a string.
-    while i < 10:
-        try:
-            final_row = str(db_result[i]).replace("(", "").replace(")", "").replace(" ", "").split(',')
-            rank_list += "<@{}> is rank {} with {} points\n".format(final_row[0], i + 1, final_row[1])
-            i += 1
-        except IndexError:
-            break
+    """Returns a top 10 list of current math point ranks"""
+    rank_list = r.get_ranks()
     await napier.say("\nTop 10:\n{}\n".format(rank_list))
-    db.close()
 
 
 @napier.command(pass_context=True)
 async def points(ctx):
+    """Checks the point value of yourself or another user"""
     if len(ctx.message.content.split(" ")) > 1:
         search_id = ctx.message.content.split(" ")[1]
         search_id = search_id.replace("<", "").replace(">", "").replace("@", "").replace("!", "")
@@ -170,23 +168,24 @@ async def add_points(ctx):
 
 @napier.command(pass_context=True)
 async def answer(ctx):
+    """USE THIS COMMAND TO ANSWER - IMPORTANT - YOU ONLY GET ONE CHANCE PER QUESTION"""
     response = ctx.message.content.replace('>answer', '').replace(' ', '')
     r.check_id(ctx.message.author.id)  # Checks if the user exists yet
-    guess = r.get_guess(ctx.message.author.id)  # Checks if the user has responded yet
+    guess = int(r.get_guess(ctx.message.author.id))  # Returns if the user has responded yet
     cur_settings = r.get_question(ctx.message.channel.id)
-    cur_answer = r.get_answer(ctx.message.channel, cur_settings[1], cur_settings[0].replace(".jpg", ""))
-    cur_weight = r.get_weight(ctx.message.channel, cur_settings[1], cur_settings[0].replace(".jpg", ""))
-    if response in cur_answer and int(guess) == 0:
-        r.add_points(ctx.message.author.id, int(cur_weight))
-        r.set_settings(ctx.message.channel.id, cur_settings[1], str(int(cur_settings[0].replace(".jpg", "")) + 1))
-        await napier.say("Congratulations <@{}> you gained {} points".format(ctx.message.author.id, cur_weight))
+    cur_aw = r.get_aw(ctx.message.channel, cur_settings[1], cur_settings[0])
+
+    if response in cur_aw[0] and guess == 0:
+        r.add_points(ctx.message.author.id, int(cur_aw[1]))
+        r.set_settings(ctx.message.channel.id, cur_settings[1], str(cur_settings[0] + 1))
+        await napier.say("Congratulations <@{}> you gained {} points".format(ctx.message.author.id, cur_aw[1]))
         await next_question(ctx)
 
-    elif response not in cur_answer and int(guess) == 0:
-        await napier.say("Sorry <@{}> try again next question!".format(ctx.message.author.id))
+    elif response not in cur_aw[0] and guess == 0:
         r.attempt_answer(ctx.message.author.id)
+        await napier.say("Sorry <@{}> try again next question!".format(ctx.message.author.id))
 
-    elif int(guess) == 1:
+    elif guess == 1:
         await napier.say("You already tried this question <@{}>!".format(ctx.message.author.id))
 
 
@@ -221,22 +220,17 @@ async def next_question(ctx):
         print(e)
         await napier.say("It appears that I've run out of questions!")
 
-
-
-
-
 # End of Ranking System - WIP #
 
 ########################################################################################################################
+
+# Primitive Censorship system, currently underpowered. #
+
+
 @napier.event
 async def on_message(message):
     if message.content in censor.arrBad:
         await napier.delete_message(message)
     await napier.process_commands(message)
-
-# @bot.event
-# async def on_message(message):
-#    print(message.content)
-
 
 napier.run(secrets.token)

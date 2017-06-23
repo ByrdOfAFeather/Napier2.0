@@ -7,7 +7,7 @@ def factor(func):
     return sympy.pretty(sympy.factor(func))
 
 
-def get_dem_roots(func):
+def get_roots(func):
     func = parse_expr(func)
     return sympy.pretty(sympy.polys.polyroots.roots(func))
 
