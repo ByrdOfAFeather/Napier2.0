@@ -1,3 +1,4 @@
+# TODO setup bot specific ranking (admin) values
 import sqlite3
 
 
