@@ -115,17 +115,17 @@ def set_settings(channel_id, ques_set, no):
     number - int"""
     # Sets the passed settings in the math bot config file
     settings.clear()
-    settings.read("ranking_config.ini")
-    settings.set(channel_id, "cur_question_set", ques_set)
-    settings.set(channel_id, "cur_question", no)
-    with open('ranking_config.ini', 'w') as configfile:
+    settings.read("Ranking/ranking_config.ini")
+    settings.set(str(channel_id), "cur_question_set", str(ques_set))
+    settings.set(str(channel_id), "cur_question", str(no))
+    with open('Ranking/ranking_config.ini', 'w') as configfile:
         settings.write(configfile)
 
 
 def get_question(channel_name):
     '''gets the current question and question group given the current channel information
     channel_name - string'''
-    settings.read("ranking_config.ini")
+    settings.read("Ranking/ranking_config.ini")
     cur_question = settings.get('{}'.format(channel_name), 'cur_question') + '.jpg'
     cur_question_group = settings.get('{}'.format(channel_name), 'cur_question_set')
     cur_settings = [cur_question, cur_question_group]
@@ -139,6 +139,6 @@ def get_aw(level, ques_set, no):
     no - int"""
     # Retrieves the currents answer from the given level config file
     settings.read(r"Math Question Repo\{}\{}\answer_key.ini".format(level, ques_set))
-    cur_aw = [settings.get(no, 'answer'), int(settings.get(no, 'point_val').replace("jpg", ""))]
+    cur_aw = [settings.get(no.replace(".jpg", ""), 'answer'), int(settings.get(no.replace(".jpg", ""), 'point_val'))]
     return cur_aw
 

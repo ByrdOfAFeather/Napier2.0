@@ -115,6 +115,7 @@ async def roots(ctx):
 
 ####################################RANKING SYSTEM######################################################################
 
+
 @napier.command(pass_context=True)
 async def ranks(ctx):
     """Returns a top 10 list of current math point ranks"""
@@ -129,9 +130,9 @@ async def ranks(ctx):
     while i < 10:
         try:
             # First item in the array is ID, Second is Points, Third is True/False answer check.
-            final_row = str(db_result[i]).replace("(", "").replace(")", "").replace(" ", "").split(',')
-            user_name = await napier.get_user_info(final_row[0])  # Loose typed language problems
-            rank_list += "{} is rank {} with {} points\n".format(user_name.display_name, i + 1, final_row[1])
+            current_user = str(db_result[i]).replace("(", "").replace(")", "").replace(" ", "").split(',')
+            user_name = await napier.get_user_info(current_user[0])
+            rank_list += "{} is rank {} with {} points\n".format(user_name.display_name, i + 1, current_user[1])
             i += 1
         except IndexError:  # Breaks in case there isn't 10 users yet.
             break
@@ -173,9 +174,10 @@ async def answer(ctx):
     cur_settings = r.get_question(ctx.message.channel.id)
     cur_aw = r.get_aw(ctx.message.channel, cur_settings[1], cur_settings[0])
 
-    if response in cur_aw[0] and guess == 0:
+    if response.upper() in cur_aw[0] and guess == 0:
+        print("test")
         r.add_points(ctx.message.author.id, int(cur_aw[1]))
-        r.set_settings(ctx.message.channel.id, cur_settings[1], str(cur_settings[0] + 1))
+        r.set_settings(ctx.message.channel.id, cur_settings[1], str(int(cur_settings[0].replace(".jpg", "")) + 1))
         await napier.say("Congratulations <@{}> you gained {} points".format(ctx.message.author.id, cur_aw[1]))
         await next_question(ctx)
 
@@ -220,8 +222,19 @@ async def next_question(ctx):
         print(e)
         await napier.say("It appears that I've run out of questions!")
 
-#####################################GENERAL FUNCTIONS##################################################################
 
+@napier.command(pass_context=True)
+async def refresh(ctx):
+    if r.admin_chk(ctx.message.author.id):
+        cur_settings = r.get_question(ctx.message.channel.id)
+        cur_channel = napier.get_channel(ctx.message.channel.id)
+        await napier.send_file(ctx.message.channel,
+                               r"Math Question Repo\{}\{}\{}".format(cur_channel.name, cur_settings[1],
+                                                                     cur_settings[0]))
+    else: await napier.say("<@{}> Admin commands are for admins only!".format(ctx.message.author.id))
+
+
+#####################################GENERAL FUNCTIONS##################################################################
 @napier.command(pass_context=True)
 async def wot(ctx): await wotloc(ctx)
 
@@ -243,7 +256,6 @@ async def wotloc(ctx):
         if items == " ": continue
         i += 1
     await napier.send_message(channel, formatted_message)
-
 
 
 @napier.event

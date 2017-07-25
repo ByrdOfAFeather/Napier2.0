@@ -129,3 +129,110 @@ def solve_right_triangle(delta, theta, a, b, c):
     else: return True # Returns that the triangle was impossible to solve
 
 
+def reg_triangle_solver(a, b, c, A, B, C):
+    """a b c represents the angles, A B C represents the sides"""
+    if (B is not None and C is not None) and (c is not None or b is not None):
+        if b is not None:
+            c = math.degrees(math.asin(C * (math.sin(math.radians(b))/B)))
+        if c is not None:
+            b = math.degrees(math.asin(B * (math.sin(math.radians(c))/C)))
+
+        a = 180 - (b + c)
+        A = math.sin(math.radians(a)) * (B / math.sin(math.radians(b)))
+
+    elif (B is not None and A is not None) and (a is not None or b is not None):
+        if a is not None:
+            b = math.degrees(math.asin(B * (math.sin(math.radians(a))/A)))
+        if b is not None:
+            a = math.degrees(math.asin(A * (math.sin(math.radians(b))/B)))
+
+        c = 180 - (a + b)
+        C = math.sin(math.radians(c)) * (A / math.sin(math.radians(a)))
+
+    elif (A is not None and C is not None) and (c is not None or a is not None):
+        if a is not None:
+            c = math.degrees(math.asin(C * (math.sin(math.radians(a)) / A)))
+        if c is not None:
+            a = math.degrees(math.asin(A * (math.sin(math.radians(c)) / C)))
+
+        b = 180 - (a + c)
+        B = math.sin(math.radians(b)) * (A / math.sin(math.radians(a)))
+
+########################################################################################################################
+
+    elif A is not None and B is not None and C is not None:
+        a = math.degrees(math.acos((((B ** 2) + (C **2 )) - (A ** 2)) / (2 * C *B)))
+        b = math.degrees(math.acos((((A ** 2) + (C ** 2)) - (B ** 2)) / (2 * A * C)))
+        c = math.degrees(math.acos((((B ** 2) + (A ** 2)) - (C ** 2)) / (2 * A * B)))
+
+########################################################################################################################
+
+    elif A is not None and c is not None and b is not None:
+        a = 180 - (c + b)
+        B = math.sin(b)*(A/math.sin(a))
+        C = math.sin(c)*(A/math.sin(a))
+
+    elif B is not None and a is not None and c is not None:
+        b = 180 - (a+c)
+        C = math.sin(C)*(B/math.sin(b))
+        A = math.sin(A)*(B/math.sin(b))
+
+    elif C is not None and a is not None and b is not None:
+        c = 180 - (a+b)
+        B = math.sin(B)*(C/math.sin(c))
+        A = math.sin(A)*(C/math.sin(c))
+
+########################################################################################################################
+
+    elif B is not None and C is not None and a is not None:
+        A = math.sqrt(((B**2)+(C**2))-(2*B*C*math.cos(a)))
+        b = math.degrees(math.asin(B * (math.sin(a)/A)))
+        c = math.degrees(math.asin(C * (math.sin(a)/A)))
+
+    elif A is not None and B is not None and c is not None:
+        C = math.sqrt(((B**2)+(A**2))-(2*B*A*(math.cos(c))))
+        b = math.degrees(math.asin(B * (math.sin(c)/C)))
+        a = math.degrees(math.asin(A * (math.sin(c)/C)))
+
+    elif A is not None and C is not None and b is not None:
+        B = math.sqrt(((C**2)+(A**2))-(2*C*A*math.cos(b)))
+        c = math.degrees(math.asin(C * (math.sin(b)/B)))
+        a = math.degrees(math.asin(A * (math.sin(b)/B)))
+
+########################################################################################################################
+
+    elif (c is not None and a is not None) and (C is not None or A is not None):
+        b = 180 - (a + c)
+        if C is not None:
+            B = math.sin(math.radians(b)) * (C/math.sin(math.radians(c)))
+            A = math.sin(math.radians(a)) * (C/math.sin(math.radians(c)))
+        if A is not None:
+            C = math.sin(math.radians(a)) * (A/math.sin(math.radians(a)))
+            B = math.sin(math.radians(b)) * (A/math.sin(math.radians(a)))
+
+    elif (b is not None and a is not None) and (B is not None or A is not None):
+        c = 180 - (b + a)
+        if B is not None:
+            C = math.sin(math.radians(c)) * (B/math.sin(math.radians(b)))
+            A = math.sin(math.radians(a)) * (B/math.sin(math.radians(b)))
+        elif A is not None:
+            C = math.sin(math.radians(c)) * (A/math.sin(math.radians(a)))
+            B = math.sin(math.radians(b)) * (A/math.sin(math.radians(a)))
+
+    elif (b is not None and c is not None) and (B is not None or C is not None):
+        a = 180 - (b + c)
+        if C is not None:
+            B = math.sin(math.radians(b)) * (C/math.sin(math.radians(c)))
+            A = math.sin(math.radians(c)) * (C/math.sin(math.radians(c)))
+        elif B is not None:
+            C = math.sin(math.radians(c)) * (B/math.sin(math.radians(b)))
+            A = math.sin(math.radians(a)) * (B/math.sin(math.radians(b)))
+
+    assert (a + b + c == 180), "Somewhere along the way, the angle was miscalculated"
+    print("A = {} B = {} C = {}, a = {} b = {} c = {}".format(A, B, C, a, b, c))
+
+
+
+
+
+
