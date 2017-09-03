@@ -1,7 +1,7 @@
 # Napier2.0
 A Mathematics Bot for Discord educational chat servers.
 
-#Setup
+# Setup
 While I doubt anyone would run this out of there own volition, there is a way to set this up:
 
 Step 1:
