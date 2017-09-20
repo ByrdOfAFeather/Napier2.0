@@ -172,7 +172,7 @@ async def answer(ctx):
     r.check_id(ctx.message.author.id)  # Checks if the user exists yet
     guess = int(r.get_guess(ctx.message.author.id))  # Returns if the user has responded yet
     cur_settings = r.get_question(ctx.message.channel.id)
-    cur_aw = r.get_aw(ctx.message.channel, cur_settings[1], cur_settings[0])
+    cur_aw = r.get_aw(cur_settings[1], cur_settings[0])
 
     if response.upper() in cur_aw[0] and guess == 0:
         print("test")
@@ -205,7 +205,7 @@ async def start_challenge(ctx):
     if r.admin_chk(ctx.message.author.id):
         question_set = formatted[0]
         question_no = formatted[1]
-        r.set_settings(ctx.message.channel.id, question_set, question_no)
+        r.set_settings(ctx.message.channel.id, question_set, int(question_no))
         await next_question(ctx)
 
     else: await napier.say("<@{}> Admin commands are for admins only!".format(ctx.message.author.id))
@@ -216,7 +216,7 @@ async def next_question(ctx):
         cur_settings = r.get_question(ctx.message.channel.id)
         cur_channel = napier.get_channel(ctx.message.channel.id)
         await napier.send_file(ctx.message.channel,
-                               r"Math Question Repo\{}\{}\{}".format(cur_channel.name, cur_settings[1], cur_settings[0]))
+                               r"Math Question Repo/{}/{}".format(cur_settings[1].replace(' ', '').replace('\'', '').replace('"', ''), cur_settings[0].replace(' ', '')))
         r.reset_guess()
     except Exception as e:
         print(e)
@@ -227,10 +227,8 @@ async def next_question(ctx):
 async def refresh(ctx):
     if r.admin_chk(ctx.message.author.id):
         cur_settings = r.get_question(ctx.message.channel.id)
-        cur_channel = napier.get_channel(ctx.message.channel.id)
         await napier.send_file(ctx.message.channel,
-                               r"Math Question Repo\{}\{}\{}".format(cur_channel.name, cur_settings[1],
-                                                                     cur_settings[0]))
+            r"Math Question Repo/{}/{}".format(cur_settings[1].replace(' ', '').replace('\'', '').replace('"', ''), cur_settings[0].replace(' ', '')))
     else: await napier.say("<@{}> Admin commands are for admins only!".format(ctx.message.author.id))
 
 

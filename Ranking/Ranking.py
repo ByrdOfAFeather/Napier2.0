@@ -40,6 +40,14 @@ def add_user(user_id):
     db.commit()
     db.close()
 
+def add_server(server_id):
+    db = sqlite3.connect('Ranking/Rankings.db')
+    adder = db.cursor()
+    adder.execute("INSERT INTO servers (ServerID,Folder,Question) VALUES ({}, '', 0)".format(server_id))
+    db.commit()
+    db.close()
+
+
 
 def set_guess(user_id, value):
     """used to set a guess in the databased to either 0 (false) or 1 (true)
@@ -62,6 +70,18 @@ def check_id(user_id):
     if result: pass # If a non empty list is passed, there is a user
     if not result: add_user(user_id)
     db.close()
+
+def check_server(server_id):
+    """checks if a user is in the database yet
+    user_id - str"""
+    db = sqlite3.connect('Ranking/Rankings.db')
+    adder = db.cursor()
+    adder.execute('SELECT 1 FROM servers WHERE ServerID = {}'.format(server_id))
+    result = adder.fetchall()
+    if result: pass # If a non empty list is passed, there is a user
+    if not result: add_server(server_id)
+    db.close()
+
 
 
 def add_points(user_id, points):
@@ -114,31 +134,37 @@ def set_settings(channel_id, ques_set, no):
     ques_set - string
     number - int"""
     # Sets the passed settings in the math bot config file
-    settings.clear()
-    settings.read("Ranking/ranking_config.ini")
-    settings.set(str(channel_id), "cur_question_set", str(ques_set))
-    settings.set(str(channel_id), "cur_question", str(no))
-    with open('Ranking/ranking_config.ini', 'w') as configfile:
-        settings.write(configfile)
+    check_server(channel_id)
+    db = sqlite3.connect('Ranking/Rankings.db')
+    adder = db.cursor()
+    adder.execute('UPDATE servers SET Question = ? WHERE ServerID = ?', (no, channel_id))
+    adder.execute('UPDATE servers SET Folder = ? WHERE ServerID = ?', (ques_set, channel_id))
+    db.commit()
+    db.close()
 
 
-def get_question(channel_name):
+def get_question(server_id):
     '''gets the current question and question group given the current channel information
     channel_name - string'''
-    settings.read("Ranking/ranking_config.ini")
-    cur_question = settings.get('{}'.format(channel_name), 'cur_question') + '.jpg'
-    cur_question_group = settings.get('{}'.format(channel_name), 'cur_question_set')
+    check_server(server_id)
+    db = sqlite3.connect('Ranking/Rankings.db')
+    adder = db.cursor()
+    adder.execute('SELECT * FROM servers WHERE ServerID = {}'.format(server_id))
+    data_list = str(adder.fetchall()).replace("(", "").replace(")", "").replace(']', '').split(',')
+    print(data_list)
+    cur_question = data_list[2] + '.jpg'
+    cur_question_group = data_list[1]
     cur_settings = [cur_question, cur_question_group]
     return cur_settings
 
 
-def get_aw(level, ques_set, no):
+def get_aw(ques_set, no):
     """gets the answer for the passed question information
     level - int
     ques_set - string
     no - int"""
     # Retrieves the currents answer from the given level config file
-    settings.read(r"Math Question Repo\{}\{}\answer_key.ini".format(level, ques_set))
-    cur_aw = [settings.get(no.replace(".jpg", ""), 'answer'), int(settings.get(no.replace(".jpg", ""), 'point_val'))]
+    settings.read(r"Math Question Repo/{}/answer_key.ini".format(ques_set.replace(' ', '').replace('\'', '').replace('"', '')))
+    cur_aw = [settings.get(no.replace(".jpg", "").replace(" ", ''), 'answer'), int(settings.get(no.replace(".jpg", "").replace(" ", ''), 'point_val'))]
     return cur_aw
 
