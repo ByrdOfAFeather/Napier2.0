@@ -8,7 +8,7 @@ import configparser
 
 settings = configparser.ConfigParser()
 
-# TODO: remove idiotic solution and replace with DB admin values.
+
 def admin_chk(user_id):
     """checks for admin
     user_id = str"""
@@ -40,13 +40,13 @@ def add_user(user_id):
     db.commit()
     db.close()
 
+
 def add_server(server_id):
     db = sqlite3.connect('Ranking/Rankings.db')
     adder = db.cursor()
     adder.execute("INSERT INTO servers (ServerID,Folder,Question) VALUES ({}, '', 0)".format(server_id))
     db.commit()
     db.close()
-
 
 
 def set_guess(user_id, value):
@@ -71,6 +71,7 @@ def check_id(user_id):
     if not result: add_user(user_id)
     db.close()
 
+
 def check_server(server_id):
     """checks if a user is in the database yet
     user_id - str"""
@@ -81,7 +82,6 @@ def check_server(server_id):
     if result: pass # If a non empty list is passed, there is a user
     if not result: add_server(server_id)
     db.close()
-
 
 
 def add_points(user_id, points):
